@@ -2,31 +2,33 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/database');
-const { logger, httpLogger } = require('./utils/logger'); // Import logger and httpLogger
+const { logger, httpLogger } = require('./utils/logger');
+const errorHandler = require('./middleware/errorHandler');
+const notFound = require('./middleware/notFound');
 
-// Load environment variables from .env file
+// Load environment variables
 dotenv.config();
 
 // Initialize Express app
 const app = express();
 
-// Middleware - functions that process requests
-app.use(cors()); // Allow frontend to connect
-app.use(express.json()); // Understand JSON data
-app.use(express.urlencoded({ extended: true })); // Understand form data
+// Middleware - request processing
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// Register HTTP logger middleware BEFORE all routes
-// This logs every incoming request and outgoing response
+// HTTP logging middleware (logs all requests)
 app.use(httpLogger);
 
-// Connect to MongoDB database
+// Connect to MongoDB
 connectDB();
+
+// ===== ROUTES =====
+// All your routes go here (in later phases)
 
 // Test route
 app.get('/', (req, res) => {
-  // Log a custom message
   logger.info('Home route accessed');
-  
   res.json({ 
     message: 'Notes App Backend is running!',
     status: 'success',
@@ -37,7 +39,6 @@ app.get('/', (req, res) => {
 // Health check route
 app.get('/health', (req, res) => {
   logger.info('Health check endpoint called');
-  
   res.json({
     status: 'ok',
     message: 'Server is healthy',
@@ -46,34 +47,19 @@ app.get('/health', (req, res) => {
   });
 });
 
-// 404 - route not found
-app.use((req, res) => {
-  logger.warn(`Route not found: ${req.method} ${req.path}`); // Log as warning
-  
-  res.status(404).json({
-    message: 'Route not found',
-    status: 'error',
-    path: req.path
-  });
-});
+// ===== ERROR HANDLING MIDDLEWARE =====
+// IMPORTANT: Register these AFTER all routes
 
-// Global error handling middleware
-app.use((err, req, res, next) => {
-  logger.error({
-    message: 'Server error occurred',
-    error: err.message,
-    stack: err.stack,
-    url: req.url,
-    method: req.method
-  });
+// 404 Not Found middleware
+// Catches requests to routes that don't exist
+app.use(notFound);
 
-  res.status(err.status || 500).json({
-    message: err.message || 'Internal Server Error',
-    status: 'error'
-  });
-});
+// Global Error Handler middleware
+// Catches all errors thrown anywhere in the app
+// MUST be last middleware (after all routes and other middleware)
+app.use(errorHandler);
 
-// Start the server
+// Start server
 const PORT = process.env.PORT || 5000;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
@@ -83,9 +69,9 @@ app.listen(PORT, () => {
 ║     Notes App Backend Server           ║
 ╠════════════════════════════════════════╣
 ║ Server Status: ✓ Running               ║
-║ Port: ${PORT}                             ║
-║ Environment: ${NODE_ENV}               ║
-║ URL: http://localhost:${PORT}             ║
+║ Port: ${PORT}                            ║
+║ Environment: ${NODE_ENV}              ║
+║ URL: http://localhost:${PORT}          ║
 ╚════════════════════════════════════════╝
   `);
 });
