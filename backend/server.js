@@ -6,6 +6,7 @@ const { logger, httpLogger } = require('./utils/logger');
 const errorHandler = require('./middleware/errorHandler');
 const notFound = require('./middleware/notFound');
 const authRoutes = require('./routes/authRoutes');
+const notesRoutes = require('./routes/notesRoutes');
 
 
 // Load environment variables
@@ -40,6 +41,12 @@ app.get('/', (req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+// Auth routes
+app.use('/api/auth', authRoutes);
+
+// Notes routes (protected)
+app.use('/api/notes', notesRoutes);
 
 // Test route
 app.get('/', (req, res) => {
