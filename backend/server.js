@@ -5,6 +5,8 @@ const connectDB = require('./config/database');
 const { logger, httpLogger } = require('./utils/logger');
 const errorHandler = require('./middleware/errorHandler');
 const notFound = require('./middleware/notFound');
+const authRoutes = require('./routes/authRoutes');
+
 
 // Load environment variables
 dotenv.config();
@@ -25,6 +27,19 @@ connectDB();
 
 // ===== ROUTES =====
 // All your routes go here (in later phases)
+
+// Auth routes
+app.use('/api/auth', authRoutes);
+
+// Test route
+app.get('/', (req, res) => {
+  logger.info('Home route accessed');
+  res.json({ 
+    message: 'Notes App Backend is running!',
+    status: 'success',
+    timestamp: new Date().toISOString()
+  });
+});
 
 // Test route
 app.get('/', (req, res) => {
