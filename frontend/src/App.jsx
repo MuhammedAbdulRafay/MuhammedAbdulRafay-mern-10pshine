@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Register from './components/Auth/Register';
 import Login from './components/Auth/Login';
 import ProtectedRoute from './components/Auth/ProtectedRoute';
+import Dashboard from "./components/Dashboard/Dashboard";
 import './App.css';
 
 /**
@@ -27,10 +28,7 @@ function App() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <div className="dashboard-placeholder">
-                <h1>Dashboard</h1>
-                <p>Dashboard content coming in Phase 9...</p>
-              </div>
+              <Dashboard />
             </ProtectedRoute>
           }
         />
