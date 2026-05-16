@@ -1,207 +1,122 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import api from '../../services/api';
-import './Dashboard.css';
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { ThemeProvider } from "../../context/ThemeContext";
+import api from "../../services/api";
+import FloatingActionButton from "./FloatingActionButton";
+import Header from "./Header";
+import NotesGrid from "./NotesGrid";
+import Sidebar from "./Sidebar";
+import { filterNotes, resolveDisplayNotes } from "./utils/noteMappers";
 
-/**
- * Dashboard Component
- * Shows all notes for the logged-in user
- */
-const Dashboard = () => {
-  // State for notes list
-  const [notes, setNotes] = useState([]);
-
-  // State for loading (show spinner while fetching)
+function DashboardShell() {
+  const [apiNotes, setApiNotes] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  // State for error messages
-  const [error, setError] = useState('');
-
-  // Hook to navigate to other pages
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
-  /**
-   * Fetch all notes for the logged-in user
-   * Called when component mounts
-   */
-  const fetchNotes = async () => {
+  const storedUser = useMemo(() => {
     try {
-      setLoading(true);
-      setError('');
-
-      // Call backend API to get notes
-      const response = await api.get('/notes');
-
-      // Extract notes from response
-      // response.data = { status: 'success', notes: [...], count: 5 }
-      setNotes(response.data.notes);
-    } catch (err) {
-      // Handle errors
-      const errorMessage = err.response?.data?.message || 'Failed to fetch notes';
-      setError(errorMessage);
-      setNotes([]); // Clear notes if error
-    } finally {
-      setLoading(false);
+      return JSON.parse(localStorage.getItem("user") || "null");
+    } catch {
+      return null;
     }
-  };
+  }, []);
 
-  /**
-   * useEffect Hook
-   * Runs when component mounts
-   * Fetches notes from backend
-   */
+  const userName =
+    storedUser?.name || storedUser?.username || "Mahdi Jalili";
+
   useEffect(() => {
+    let cancelled = false;
+
+    async function fetchNotes() {
+      try {
+        setLoading(true);
+        const response = await api.get("/notes");
+        if (!cancelled) {
+          setApiNotes(response.data.notes || []);
+        }
+      } catch {
+        if (!cancelled) {
+          setApiNotes([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
     fetchNotes();
-  }, []); // Empty array = run once on mount
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  /**
-   * Handle delete note
-   * Called when user clicks delete button on a note
-   */
-  const handleDeleteNote = async (noteId) => {
-    // Confirm deletion with user
-    if (!window.confirm('Are you sure you want to delete this note?')) {
-      return; // User cancelled
-    }
+  const displayNotes = useMemo(
+    () => resolveDisplayNotes(apiNotes),
+    [apiNotes],
+  );
 
-    try {
-      // Call delete API
-      await api.delete(`/notes/${noteId}`);
+  const filteredNotes = useMemo(
+    () => filterNotes(displayNotes, searchQuery),
+    [displayNotes, searchQuery],
+  );
 
-      // Remove note from list (don't need to refetch)
-      setNotes(notes.filter(note => note._id !== noteId));
-    } catch (err) {
-      // Show error if delete fails
-      setError('Failed to delete note');
-    }
-  };
+  const handleCreateNote = () => navigate("/notes/new");
+  const handleEditNote = (noteId) => navigate(`/notes/${noteId}/edit`);
 
-  /**
-   * Handle edit note
-   * Navigate to edit page
-   */
-  const handleEditNote = (noteId) => {
-    navigate(`/notes/${noteId}/edit`);
-  };
-
-  /**
-   * Handle create new note
-   * Navigate to create page
-   */
-  const handleCreateNote = () => {
-    navigate('/notes/new');
-  };
-
-  /**
-   * Handle logout
-   */
   const handleLogout = () => {
-    // Clear token from localStorage
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-
-    // Redirect to login
-    navigate('/login');
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
   };
-
-  // ===== RENDER =====
 
   return (
-    <div className="dashboard-container">
-      {/* Header with title and buttons */}
-      <div className="dashboard-header">
-        <h1>My Notes</h1>
-        <div className="header-buttons">
-          <button
-            className="btn btn-primary"
-            onClick={handleCreateNote}
-          >
-            + New Note
-          </button>
-          <button
-            className="btn btn-secondary"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
-        </div>
-      </div>
+    <div
+      className="box-border flex h-[100dvh] min-h-0 w-full flex-col overflow-hidden bg-neutral-100 font-sans dark:bg-neutral-950"
+      style={{
+        paddingTop: "calc(1rem + env(safe-area-inset-top, 0px))",
+        paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))",
+        paddingLeft: "calc(1rem + env(safe-area-inset-left, 0px))",
+        paddingRight: "calc(1rem + env(safe-area-inset-right, 0px))",
+      }}
+    >
+      <div className="grid min-h-0 min-w-0 flex-1 grid-cols-[5rem_minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)] gap-4">
+        <Sidebar
+          onNewNote={handleCreateNote}
+          onPinned={() => {}}
+          onTrash={() => {}}
+          onLogout={handleLogout}
+        />
 
-      {/* Error message */}
-      {error && (
-        <div className="error-message">
-          {error}
-        </div>
-      )}
+        <Header
+          userName={userName}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
 
-      {/* Loading spinner */}
-      {loading && (
-        <div className="loading">
-          <div className="spinner"></div>
-          <p>Loading your notes...</p>
-        </div>
-      )}
-
-      {/* Empty state (no notes) */}
-      {!loading && notes.length === 0 && (
-        <div className="empty-state">
-          <h2>No notes yet</h2>
-          <p>Create your first note to get started</p>
-          <button
-            className="btn btn-primary"
-            onClick={handleCreateNote}
-          >
-            Create First Note
-          </button>
-        </div>
-      )}
-
-      {/* Notes grid */}
-      {!loading && notes.length > 0 && (
-        <div className="notes-grid">
-          {notes.map(note => (
-            <div key={note._id} className="note-card">
-              {/* Note title */}
-              <h3 className="note-title">
-                {note.title}
-              </h3>
-
-              {/* Note content snippet (first 150 characters) */}
-              <p className="note-content">
-                {note.content.substring(0, 150)}...
-              </p>
-
-              {/* Note metadata (dates) */}
-              <div className="note-meta">
-                <small>
-                  Created: {new Date(note.createdAt).toLocaleDateString()}
-                </small>
-                <small>
-                  Updated: {new Date(note.updatedAt).toLocaleDateString()}
-                </small>
-              </div>
-
-              {/* Note actions (edit, delete) */}
-              <div className="note-actions">
-                <button
-                  className="btn btn-small btn-primary"
-                  onClick={() => handleEditNote(note._id)}
-                >
-                  Edit
-                </button>
-                <button
-                  className="btn btn-small btn-danger"
-                  onClick={() => handleDeleteNote(note._id)}
-                >
-                  Delete
-                </button>
-              </div>
+        <main className="relative min-h-0 min-w-0 overflow-x-hidden overflow-y-auto rounded-[28px] bg-[#E8EAEF] p-4 shadow-sm [scrollbar-gutter:stable] sm:p-5 dark:bg-neutral-900 dark:shadow-none">
+          <div className="flex w-full min-w-0 justify-center pb-28 pt-1">
+            <div className="w-full max-w-7xl min-w-0">
+              <NotesGrid
+                notes={filteredNotes}
+                loading={loading}
+                onEditNote={handleEditNote}
+              />
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+          <FloatingActionButton onClick={handleCreateNote} />
+        </main>
+      </div>
     </div>
   );
-};
+}
+function Dashboard() {
+  return (
+    <ThemeProvider>
+      <DashboardShell />
+    </ThemeProvider>
+  );
+}
 
 export default Dashboard;

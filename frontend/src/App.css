@@ -1,7 +1,8 @@
-/* Remove default margins */
-* {
+/* Remove default margins; avoid padding:0 on all elements — it can fight Tailwind utilities */
+*,
+*::before,
+*::after {
   margin: 0;
-  padding: 0;
   box-sizing: border-box;
 }
 
