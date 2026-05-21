@@ -1,29 +1,24 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Register from './components/Auth/Register';
-import Login from './components/Auth/Login';
-import ProtectedRoute from './components/Auth/ProtectedRoute';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Dashboard from "./components/Dashboard/Dashboard";
-import './App.css';
+
+import "./App.css";
 
 /**
  * Main App Component
- * Sets up all routes for the application
  */
 function App() {
   return (
     <Router>
       <Routes>
+
         {/* Public Routes */}
-        
-        {/* Register Route */}
-        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
 
-        {/* Login Route */}
-        <Route path="/login" element={<Login />} />
-
-        {/* Protected Routes (require authentication) */}
-        
-        {/* Dashboard Route - Protected */}
+        {/* Protected Route */}
         <Route
           path="/dashboard"
           element={
@@ -33,11 +28,12 @@ function App() {
           }
         />
 
-        {/* Root Route - Redirect to login */}
+        {/* Root redirect */}
         <Route path="/" element={<Navigate to="/login" replace />} />
 
-        {/* Catch-all - Any undefined route goes to login */}
+        {/* Catch all */}
         <Route path="*" element={<Navigate to="/login" replace />} />
+
       </Routes>
     </Router>
   );
