@@ -1,12 +1,12 @@
-import { LoginForm } from "../components/Auth/LoginForm";
-import { DecorativePanel } from "../components/Auth/DecorativePanel";
+import { LoginForm } from "../components/auth/LoginForm";
+import { DecorativePanel } from "../components/auth/DecorativePanel";
 
 export default function LoginPage() {
   return (
     <div className="flex min-h-screen">
       
       {/* Left side: form */}
-      <div className="w-full lg:w-1/2">
+      <div className="flex min-h-screen w-full lg:w-1/2">
         <LoginForm />
       </div>
 
