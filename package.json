@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@tiptap/extension-highlight": "^3.23.6",
+    "@tiptap/extension-placeholder": "^3.23.6",
+    "@tiptap/extension-text-align": "^3.23.6",
+    "@tiptap/extension-underline": "^3.23.6",
+    "@tiptap/react": "^3.23.6",
+    "@tiptap/starter-kit": "^3.23.6",
+    "framer-motion": "^12.40.0"
+  }
+}
