@@ -35,6 +35,16 @@ const userSchema = new mongoose.Schema(
       minlength: [6, 'Password must be at least 6 characters'], // Minimum length
       select: false, // Don't include password in queries by default (for security)
     },
+
+    // Password reset fields
+    resetToken: {
+      type: String,
+      default: null
+    },
+    resetTokenExpiry: {
+      type: Date,
+      default: null
+    },
   },
   {
     // Automatically add createdAt and updatedAt timestamps

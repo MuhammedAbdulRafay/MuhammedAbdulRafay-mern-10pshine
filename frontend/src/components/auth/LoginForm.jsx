@@ -130,7 +130,7 @@ export function LoginForm() {
 
             <div className="flex justify-end">
               <Link
-                to="#"
+                to="/forgot-password"
                 className="text-sm font-medium text-foreground underline underline-offset-4"
               >
                 Forgot password?

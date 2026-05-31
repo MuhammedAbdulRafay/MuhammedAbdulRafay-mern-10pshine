@@ -7,6 +7,7 @@ const errorHandler = require('./middleware/errorHandler');
 const notFound = require('./middleware/notFound');
 const authRoutes = require('./routes/authRoutes');
 const notesRoutes = require('./routes/notesRoutes');
+const forgotPasswordRoutes = require('./routes/forgotPasswordRoutes');
 
 
 // Load environment variables
@@ -43,6 +44,8 @@ app.get('/', (req, res) => {
 });
 
 // Auth routes
+app.use('/api/auth', forgotPasswordRoutes);
+
 app.use('/api/auth', authRoutes);
 
 // Notes routes (protected)
