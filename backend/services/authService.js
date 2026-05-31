@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { randomBytes, createHash } = require('crypto');
 const { logger } = require('../utils/logger');
 
 /**
@@ -144,8 +145,100 @@ const logoutUser = async (email) => {
   }
 };
 
+/**
+ * Request password reset
+ */
+const requestPasswordReset = async (email) => {
+  try {
+    const emailService = require('./emailService');
+    // Find user by email
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      const error = new Error('User not found');
+      error.status = 404;
+      throw error;
+    }
+
+    // Generate reset token (random 32 characters)
+    const resetToken = randomBytes(32).toString('hex');
+
+    // Hash token (don't store plain token in DB)
+    const hashedToken = createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+      
+    // Set token expiry (1 hour from now)
+    const expiryTime = Date.now() + 3600000; // 1 hour
+
+    // Save to user
+    user.resetToken = hashedToken;
+    user.resetTokenExpiry = expiryTime;
+    await user.save();
+
+    // Send email
+    await emailService.sendPasswordResetEmail(email, resetToken);
+
+    logger.info(`Password reset requested for: ${email}`);
+    return { message: 'Reset link sent to email' };
+  } catch (error) {
+    logger.error(`Error requesting reset: ${error.message}`);
+    throw error;
+  }
+};
+
+/**
+ * Reset password with token
+ */
+const resetPassword = async (resetToken, newPassword) => {
+  try {
+    const crypto = require('crypto');
+
+    // Hash the token from URL
+    const hashedToken = createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+    
+      // Find user with this token and check if expired
+    const user = await User.findOne({
+      resetToken: hashedToken,
+      resetTokenExpiry: { $gt: Date.now() } // Token not expired
+    });
+
+    if (!user) {
+      const error = new Error('Reset token invalid or expired');
+      error.status = 400;
+      throw error;
+    }
+
+    // Validate new password
+    if (!newPassword || newPassword.length < 6) {
+      const error = new Error('Password must be at least 6 characters');
+      error.status = 400;
+      throw error;
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Update password and clear reset token
+    user.password = hashedPassword;
+    user.resetToken = null;
+    user.resetTokenExpiry = null;
+    await user.save();
+
+    logger.info(`Password reset successful for user: ${user.email}`);
+    return { message: 'Password reset successful' };
+  } catch (error) {
+    logger.error(`Error resetting password: ${error.message}`);
+    throw error;
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
-  logoutUser
+  logoutUser,
+  requestPasswordReset,
+  resetPassword
 };
