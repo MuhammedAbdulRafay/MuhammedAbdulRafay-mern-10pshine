@@ -117,7 +117,12 @@ const loginUser = async (email, password) => {
       user: {
         _id: user._id,
         username: user.username,
-        email: user.email
+        name: user.username,
+        email: user.email,
+        mobile: user.mobile || '',
+        location: user.location || '',
+        avatar: user.avatar || '',
+        avatarUrl: user.avatar || '',
       },
       token: token
     };

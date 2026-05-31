@@ -45,6 +45,23 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null
     },
+
+    mobile: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+
+    location: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+
+    avatar: {
+      type: String,
+      default: '',
+    },
   },
   {
     // Automatically add createdAt and updatedAt timestamps

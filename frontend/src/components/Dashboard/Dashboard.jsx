@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../../services/api";
 import { useTheme } from "../../context/ThemeContext";
+import { useUser } from "../../context/UserContext";
 
 import {
   LayoutDashboard,
@@ -376,31 +377,35 @@ function Sidebar({
   const mutedIcon = isDarkMode
     ? "text-neutral-500 hover:bg-neutral-100 hover:text-[#070707]"
     : "text-white/60 hover:bg-white/10 hover:text-white";
+
   return (
     <aside
-      className={`flex h-full w-20 flex-shrink-0 flex-col items-center justify-between rounded-2xl pt-2 pb-6 ${shellBg}`}
+      className={`flex h-full w-50 flex-shrink-0 flex-col justify-between rounded-2xl px-4 pt-3 pb-4 ${shellBg}`}
     >
-      {/* Logo */}
-      <div className="flex flex-col items-center gap-6">
-        <img
-          src="/sidebar-logo.png"
-          alt="Draft"
-          className="size-[5.5rem] shrink-0 object-contain brightness-0 invert dark:invert-0"
-        />
+      {/* Top: Logo, New Note, Navigation */}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-center py-1">
+          <img
+            src="/logo.png"
+            alt="Draft"
+            className="h-30 w-30 shrink-0 object-contain brightness-0 invert dark:invert-0"
+          />
+        </div>
 
         {/* Create Note Button */}
         <motion.button
           onClick={onCreateNote}
-          className={`flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-200 ${accentBg} ${accentText} hover:opacity-90`}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          className={`flex h-11 w-full items-center gap-3 rounded-xl px-3 transition-all duration-200 ${accentBg} ${accentText} hover:opacity-90`}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           title="New Note"
         >
-          <Plus className="h-5 w-5" />
+          <Plus className="h-5 w-5 shrink-0" />
+          <span className="text-sm font-medium">New Note</span>
         </motion.button>
 
         {/* Navigation */}
-        <nav className="flex flex-col items-center gap-2">
+        <nav className="flex flex-col gap-2">
           {navItems.map((item) => {
             const isActive = currentView === item.id;
             const Icon = item.icon;
@@ -409,14 +414,15 @@ function Sidebar({
               <motion.button
                 key={item.id}
                 onClick={() => onNavigate(item.id)}
-                className={`relative flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-200 ${
+                className={`relative flex h-11 w-full items-center gap-3 rounded-xl px-3 transition-all duration-200 ${
                   isActive ? `${accentBg} ${accentText}` : mutedIcon
                 }`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 title={item.label}
               >
-                <Icon className="h-5 w-5" />
+                <Icon className="h-5 w-5 shrink-0" />
+                <span className="text-sm font-medium">{item.label}</span>
               </motion.button>
             );
           })}
@@ -424,29 +430,33 @@ function Sidebar({
       </div>
 
       {/* Bottom Actions */}
-      <div className="flex flex-col items-center gap-2">
+      <div className="flex flex-col gap-2">
         <motion.button
           onClick={onToggleDarkMode}
-          className={`flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-200 ${mutedIcon}`}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          className={`flex h-11 w-full items-center gap-3 rounded-xl px-3 transition-all duration-200 ${mutedIcon}`}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           title={isDarkMode ? "Light mode" : "Dark mode"}
         >
           {isDarkMode ? (
-            <Sun className="h-5 w-5" />
+            <Sun className="h-5 w-5 shrink-0" />
           ) : (
-            <Moon className="h-5 w-5" />
+            <Moon className="h-5 w-5 shrink-0" />
           )}
+          <span className="text-sm font-medium">
+            {isDarkMode ? "Light mode" : "Dark mode"}
+          </span>
         </motion.button>
 
         <motion.button
           onClick={onLogout}
-          className={`flex h-11 w-11 items-center justify-center rounded-xl transition-all duration-200 ${mutedIcon}`}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          className={`flex h-11 w-full items-center gap-3 rounded-xl px-3 transition-all duration-200 ${mutedIcon}`}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
           title="Logout"
         >
-          <LogOut className="h-5 w-5" />
+          <LogOut className="h-5 w-5 shrink-0" />
+          <span className="text-sm font-medium">Logout</span>
         </motion.button>
       </div>
     </aside>
@@ -457,7 +467,7 @@ function Sidebar({
 // COMPONENT: Header
 // ============================================
 
-function Header({ username, avatarUrl, isDarkMode }) {
+function Header({ username, avatarUrl, isDarkMode, onProfileClick }) {
   const { searchQuery, setSearchQuery } = useNotes();
 
   const shellBg = isDarkMode ? "bg-white" : "bg-[#070707]";
@@ -477,7 +487,12 @@ function Header({ username, avatarUrl, isDarkMode }) {
       className={`flex h-20 flex-shrink-0 items-center rounded-2xl px-6 ${shellBg}`}
     >
       {/* User Info */}
-      <div className="flex items-center gap-3">
+      <button
+        type="button"
+        onClick={onProfileClick}
+        className="flex items-center gap-3 rounded-xl transition-opacity hover:opacity-85 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-current"
+        aria-label="Open profile"
+      >
         {avatarUrl ? (
           <img
             src={avatarUrl}
@@ -494,7 +509,7 @@ function Header({ username, avatarUrl, isDarkMode }) {
         <span className={`text-sm font-medium ${labelText}`}>
           {username || "User"}
         </span>
-      </div>
+      </button>
 
       {/* Spacer */}
       <div className="flex-1" />
@@ -1437,7 +1452,6 @@ function NoteEditor({
 // ============================================
 
 export default function Dashboard({
-  user = null,
   notes = [],
   onLogout = () => {},
   onNoteSave = () => {},
@@ -1449,6 +1463,7 @@ export default function Dashboard({
 }) {
   const navigate = useNavigate();
   const { isDark: isDarkMode, toggleTheme: toggleDarkMode } = useTheme();
+  const { user, clearUser } = useUser();
   const [currentView, setCurrentView] = useState(initialView);
   const [viewMode, setViewMode] = useState("grid");
   const [editingNote, setEditingNote] = useState(null);
@@ -1461,9 +1476,13 @@ export default function Dashboard({
 
   const handleLogout = () => {
     localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    clearUser();
     onLogout();
     navigate("/login");
+  };
+
+  const handleOpenProfile = () => {
+    navigate("/profile");
   };
 
   const displayName = user?.name || user?.username || "User";
@@ -1490,6 +1509,7 @@ export default function Dashboard({
         onNoteUpdate={onNoteUpdate}
         onNoteDelete={onNoteDelete}
         onTogglePin={onTogglePin}
+        onOpenProfile={handleOpenProfile}
       />
     </NotesProvider>
   );
@@ -1513,6 +1533,7 @@ function DashboardContent({
   onNoteUpdate,
   onNoteDelete,
   onTogglePin,
+  onOpenProfile,
 }) {
   const {
     filteredNotes,
@@ -1647,6 +1668,7 @@ function DashboardContent({
           username={displayName}
           avatarUrl={avatarUrl}
           isDarkMode={isDarkMode}
+          onProfileClick={onOpenProfile}
         />
 
         {/* Content Area */}

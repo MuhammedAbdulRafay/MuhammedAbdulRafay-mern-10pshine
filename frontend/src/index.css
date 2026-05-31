@@ -18,6 +18,7 @@
   --color-note-card-dark-border: #3a3a3a;
   --color-note-card-dark-tag: #3a3a3a;
   --color-sidebar: #070707;
+  --spacing-35: 8.75rem;
 }
 
 @layer base {
