@@ -6,26 +6,19 @@ import ProtectedRoute from "./components/auth/ProtectedRoute";
 import ForgotPassword from './components/auth/ForgotPassword';
 import ResetPassword from './components/auth/ResetPassword';
 import { ThemeProvider } from "./context/ThemeContext";
+import { UserProvider } from "./context/UserContext";
 
 import "./App.css";
 
 const Dashboard = lazy(() => import("./components/Dashboard/Dashboard"));
+const UserProfilePage = lazy(() => import("./pages/UserProfilePage"));
 
-function getStoredUser() {
-  try {
-    const raw = localStorage.getItem("user");
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-}
-
-function DashboardRoute() {
+function ProtectedApp({ children }) {
   return (
     <ThemeProvider>
-      <ProtectedRoute>
-        <Dashboard user={getStoredUser()} />
-      </ProtectedRoute>
+      <UserProvider>
+        <ProtectedRoute>{children}</ProtectedRoute>
+      </UserProvider>
     </ThemeProvider>
   );
 }
@@ -48,7 +41,22 @@ function App() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/dashboard" element={<DashboardRoute />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedApp>
+                <Dashboard />
+              </ProtectedApp>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedApp>
+                <UserProfilePage />
+              </ProtectedApp>
+            }
+          />
           <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>

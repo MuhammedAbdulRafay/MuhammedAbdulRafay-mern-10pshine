@@ -38,8 +38,8 @@ const ForgotPassword = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-900 flex items-center justify-center p-4">
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl w-full max-w-md">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-1 flex items-center justify-center p-4">
+        <div className="bg-white dark:bg-slate-100 rounded-xl shadow-2xl w-full max-w-md">
           <div className="p-12 flex flex-col gap-8">
             <h2 className="text-4xl font-bold text-slate-900 dark:text-white">
               Check Your Email
