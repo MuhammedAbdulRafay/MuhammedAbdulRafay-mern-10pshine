@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 /**
+ * 
  * Connect to test database
  * Use a different database name for testing so we don't touch production data
  */
