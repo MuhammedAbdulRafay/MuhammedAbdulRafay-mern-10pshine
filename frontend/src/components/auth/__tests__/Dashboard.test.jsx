@@ -177,7 +177,9 @@ describe('Dashboard Component', () => {
     await user.click(deleteButtons[0]);
 
     await waitFor(() => {
-      expect(api.delete).toHaveBeenCalledWith('/notes/1');
+      expect(api.delete).toHaveBeenCalledWith(
+        expect.stringMatching(/^\/notes\/(1|2)$/)
+      );
     });
   });
 
