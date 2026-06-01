@@ -7,5 +7,8 @@
     "@tiptap/react": "^3.23.6",
     "@tiptap/starter-kit": "^3.23.6",
     "framer-motion": "^12.40.0"
+  },
+  "devDependencies": {
+    "sonar-scanner": "^3.1.0"
   }
 }

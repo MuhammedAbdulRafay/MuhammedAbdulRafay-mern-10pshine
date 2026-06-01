@@ -1,0 +1,6 @@
+projectKey=notes-app
+serverUrl=http://localhost:9000
+serverVersion=26.5.0.122743
+dashboardUrl=http://localhost:9000/dashboard?id=notes-app
+ceTaskId=51f06a3f-9909-4d6d-81fe-b56a1a1345dd
+ceTaskUrl=http://localhost:9000/api/ce/task?id=51f06a3f-9909-4d6d-81fe-b56a1a1345dd
