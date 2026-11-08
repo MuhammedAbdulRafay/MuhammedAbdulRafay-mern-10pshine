@@ -1,6 +1,6 @@
 const { expect } = require('chai');
 const { connectTestDB, disconnectTestDB, clearDatabase } = require('./setup');
-const User = require('../models/User');
+const User = require('../models/user');
 const { registerUser, loginUser } = require('../services/authService');
 
 /**

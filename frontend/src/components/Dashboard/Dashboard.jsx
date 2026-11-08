@@ -8,7 +8,7 @@ import {
   Component,
 } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import api from "../../services/api";
 import { useTheme } from "../../context/ThemeContext";
 import { useUser } from "../../context/UserContext";
@@ -545,7 +545,6 @@ function NoteCard({
   isListView = false,
   isDarkMode = false,
 }) {
-  const noteId = note.id || note._id;
   const noteDate = note.createdAt || note.updatedAt || note.date;
 
   const cardBg = isDarkMode

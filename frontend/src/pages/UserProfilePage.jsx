@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Pencil, X, Eye, EyeOff } from "lucide-react";
 import { Sidebar } from "../components/Dashboard/Dashboard";
 import { useTheme } from "../context/ThemeContext";
@@ -120,7 +119,7 @@ export default function UserProfilePage() {
       confirmPassword: "",
     });
     setAvatarPreview("");
-  }, [user?._id]);
+  }, [user]);
 
   const displayName = form.username || "User";
   const avatarUrl = avatarPreview || form.avatar;

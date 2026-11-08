@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const connectDB = require('./config/database');
@@ -65,13 +66,15 @@ app.get('/', (req, res) => {
   });
 });
 
-// Health check route
 app.get('/health', (req, res) => {
-  logger.info('Health check endpoint called');
-  res.json({
-    status: 'ok',
-    message: 'Server is healthy',
-    database: 'MongoDB connected',
+  const dbConnected = mongoose.connection.readyState === 1;
+
+  res.status(dbConnected ? 200 : 503).json({
+    status: dbConnected ? 'ok' : 'error',
+    message: dbConnected
+      ? 'Server is healthy'
+      : 'Database connection unavailable',
+    database: dbConnected ? 'connected' : 'disconnected',
     timestamp: new Date().toISOString()
   });
 });

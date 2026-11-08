@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
@@ -12,15 +12,9 @@ const ResetPassword = () => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(() => token ? '' : 'Invalid reset link');
   const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!token) {
-      setError('Invalid reset link');
-    }
-  }, [token]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

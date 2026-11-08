@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, User } from "lucide-react";
 import { AuthLogo } from "./AuthLogo";
 import axios from "axios";

@@ -1,0 +1,51 @@
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: notes-mongodb
+    restart: unless-stopped
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: notes-backend
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    environment:
+      MONGODB_URI: mongodb://mongodb:27017/notes_app
+      PORT: 5000
+    depends_on:
+      mongodb:
+        condition: service_healthy
+       
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:5000/health').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+
+  frontend:
+    build: ./frontend
+    container_name: notes-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:5000/api
+    
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  mongodb_data:
